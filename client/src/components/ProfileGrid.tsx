@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 interface ProfileGridProps {
   profiles: Profile[];
   isLoading: boolean;
-  handleEdit: (profile: Profile) => void;
-  handleDelete: (id: number) => void;
+  handleEdit?: (profile: Profile) => void;
+  handleDelete?: (id: number) => void;
 }
 
 export default function ProfileGrid({ profiles, isLoading, handleEdit, handleDelete }: ProfileGridProps) {

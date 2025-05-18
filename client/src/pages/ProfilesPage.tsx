@@ -12,6 +12,7 @@ import { useLocalProfiles } from '@/hooks/useLocalProfiles';
 import { useSearch } from '@/hooks/useSearch';
 import { usePagination } from '@/hooks/usePagination';
 import { InsertProfile, Profile } from '@shared/schema';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfilesPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -19,6 +20,9 @@ export default function ProfilesPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [profileToDelete, setProfileToDelete] = useState<number | null>(null);
+  
+  // Get authentication context to check if user is admin
+  const { isAdmin } = useAuth();
 
   const { 
     profiles, 
