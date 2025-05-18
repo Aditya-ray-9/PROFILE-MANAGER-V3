@@ -42,7 +42,7 @@ export function createProfile(profileData: InsertProfile): Profile {
     ...profileData,
     id: maxId + 1,
     searchId: profileData.searchId || null,
-    photoUrl: profileData.photoUrl || null,
+    photoUrl: profileData.photoUrl || null, // Will use default in the UI when null
     // Set default empty documents array if not provided
     documents: ('documents' in profileData) ? profileData.documents as any : []
   };

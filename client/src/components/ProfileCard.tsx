@@ -16,6 +16,7 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile, onEdit, onDelete }: ProfileCardProps) {
   const { name, profileId, searchId, description, photoUrl } = profile;
   const initials = getInitials(name);
+  // Use the default image if no photo URL is provided
   const avatarUrl = photoUrl || defaultProfileImage;
 
   return (
