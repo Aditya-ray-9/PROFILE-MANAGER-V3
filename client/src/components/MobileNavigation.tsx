@@ -8,46 +8,46 @@ interface MobileNavigationProps {
 
 export default function MobileNavigation({ activePage }: MobileNavigationProps) {
   return (
-    <div className="md:hidden bg-white border-t border-gray-200 fixed bottom-0 inset-x-0">
+    <div className="md:hidden bg-background border-t border-border fixed bottom-0 inset-x-0">
       <div className="flex justify-around">
         <Link href="/profiles">
-          <a className={cn(
-            "group flex flex-col items-center p-3",
-            activePage === "profiles" ? "text-primary" : "text-gray-500 hover:text-gray-900"
+          <div className={cn(
+            "group flex flex-col items-center p-3 cursor-pointer",
+            activePage === "profiles" ? "text-primary" : "text-muted-foreground hover:text-foreground"
           )}>
             <Users className="h-5 w-5" />
             <span className="text-xs mt-1 font-medium">Profiles</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/favorites">
-          <a className={cn(
-            "group flex flex-col items-center p-3",
-            activePage === "favorites" ? "text-primary" : "text-gray-500 hover:text-gray-900"
+          <div className={cn(
+            "group flex flex-col items-center p-3 cursor-pointer",
+            activePage === "favorites" ? "text-primary" : "text-muted-foreground hover:text-foreground"
           )}>
             <Star className="h-5 w-5" />
             <span className="text-xs mt-1 font-medium">Favorites</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/archived">
-          <a className={cn(
-            "group flex flex-col items-center p-3",
-            activePage === "archived" ? "text-primary" : "text-gray-500 hover:text-gray-900"
+          <div className={cn(
+            "group flex flex-col items-center p-3 cursor-pointer",
+            activePage === "archived" ? "text-primary" : "text-muted-foreground hover:text-foreground"
           )}>
             <Archive className="h-5 w-5" />
             <span className="text-xs mt-1 font-medium">Archived</span>
-          </a>
+          </div>
         </Link>
         
         <Link href="/settings">
-          <a className={cn(
-            "group flex flex-col items-center p-3",
-            activePage === "settings" ? "text-primary" : "text-gray-500 hover:text-gray-900"
+          <div className={cn(
+            "group flex flex-col items-center p-3 cursor-pointer",
+            activePage === "settings" ? "text-primary" : "text-muted-foreground hover:text-foreground"
           )}>
             <Settings className="h-5 w-5" />
             <span className="text-xs mt-1 font-medium">Settings</span>
-          </a>
+          </div>
         </Link>
       </div>
     </div>
