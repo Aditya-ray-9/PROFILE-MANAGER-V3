@@ -38,8 +38,8 @@ export default function ProfileGrid({ profiles, isLoading, handleEdit, handleDel
           <ProfileCard 
             key={profile.id} 
             profile={profile} 
-            onEdit={() => handleEdit(profile)} 
-            onDelete={() => handleDelete(profile.id)} 
+            onEdit={handleEdit ? () => handleEdit(profile) : undefined} 
+            onDelete={handleDelete ? () => handleDelete(profile.id) : undefined} 
           />
         ))}
       </div>
