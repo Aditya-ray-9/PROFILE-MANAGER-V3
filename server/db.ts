@@ -15,8 +15,8 @@ let db: ReturnType<typeof drizzle> | null = null;
 
 // Initialize the database
 function initDatabase() {
-  // Use Neon PostgreSQL database URI
-  const databaseUrl = "postgresql://neondb_owner:npg_XP8xBDvj9gIZ@ep-noisy-poetry-a4yk8qnu-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require";
+  // Use Neon PostgreSQL database URI from environment
+  const databaseUrl = process.env.NEON_DATABASE_URL || "postgresql://neondb_owner:npg_XP8xBDvj9gIZ@ep-noisy-poetry-a4yk8qnu-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require";
   console.log(`Database URL available: ${!!databaseUrl}`);
 
   // Print the hostname part of the URL for debugging
