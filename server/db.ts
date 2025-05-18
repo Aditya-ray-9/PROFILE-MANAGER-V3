@@ -15,9 +15,8 @@ let db: ReturnType<typeof drizzle> | null = null;
 
 // Initialize the database
 function initDatabase() {
-  // Use Replit PostgreSQL environment variables
-  // Build connection string from individual environment variables
-  const databaseUrl = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
+  // Use Neon PostgreSQL database URI
+  const databaseUrl = "postgresql://neondb_owner:npg_XP8xBDvj9gIZ@ep-noisy-poetry-a4yk8qnu-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require";
   console.log(`Database URL available: ${!!databaseUrl}`);
 
   // Print the hostname part of the URL for debugging
