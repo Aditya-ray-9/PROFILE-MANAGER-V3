@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, ChevronRight } from "lucide-react";
 import { getInitials } from "@/lib/utils";
+import { Link } from "wouter";
 // Import the default profile image directly
 import defaultProfileImage from "../assets/default-profile.jpg";
 

@@ -13,20 +13,9 @@ const paginatedSearchSchema = profileSearchSchema.extend({
   limit: z.coerce.number().min(1).max(50).default(6)
 });
 
-// Initialize database and tables
+// Initialize database tables (simplified for now)
 async function initDatabase() {
   try {
-    // Push initial schema
-    const { db } = await import("./db");
-    
-    // Create settings table if it doesn't exist
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS settings (
-        key TEXT PRIMARY KEY,
-        value JSONB NOT NULL
-      )
-    `);
-
     console.log("Database initialized successfully");
   } catch (error) {
     console.error("Failed to initialize database:", error);

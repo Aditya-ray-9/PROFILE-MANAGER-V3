@@ -1,21 +1,41 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "@shared/schema";
+import { sql } from "drizzle-orm";
 
-// Check for DATABASE_URL
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set");
-}
-
-// Create a PostgreSQL connection
-export const queryClient = postgres(process.env.DATABASE_URL, { 
-  ssl: 'require',
-  max: 10,
-  prepare: false
-});
-
-// Create a Drizzle instance with our schema
-export const db = drizzle(queryClient, { schema });
+// Variable to track if we're using a real database
+export let isDatabaseConnected = false;
 
 // Export SQL for raw queries
-export { sql } from "drizzle-orm";
+export { sql };
+
+// Set up database connection if URL is available
+let queryClient: ReturnType<typeof postgres> | null = null;
+let db: ReturnType<typeof drizzle> | null = null;
+
+try {
+  if (process.env.DATABASE_URL) {
+    console.log("Attempting to connect to PostgreSQL database...");
+    
+    // Create a PostgreSQL connection
+    queryClient = postgres(process.env.DATABASE_URL, { 
+      ssl: 'require',
+      max: 10,
+      prepare: false
+    });
+    
+    // Create a Drizzle instance with our schema
+    db = drizzle(queryClient, { schema });
+    
+    isDatabaseConnected = true;
+    console.log("PostgreSQL database connection established");
+  } else {
+    console.log("No DATABASE_URL provided, database features will be disabled");
+  }
+} catch (error) {
+  console.error("Failed to connect to PostgreSQL database:", error);
+  isDatabaseConnected = false;
+}
+
+// Export the database connection variables
+export { queryClient, db };
