@@ -13,9 +13,30 @@ const paginatedSearchSchema = profileSearchSchema.extend({
   limit: z.coerce.number().min(1).max(50).default(6)
 });
 
-// Initialize database tables (simplified for now)
+// Initialize database tables
 async function initDatabase() {
   try {
+    // Create profiles table if it doesn't exist
+    await sql`
+      CREATE TABLE IF NOT EXISTS profiles (
+        id SERIAL PRIMARY KEY,
+        profile_id TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        search_id TEXT,
+        description TEXT NOT NULL,
+        photo_url TEXT,
+        documents JSONB DEFAULT '[]'
+      )
+    `;
+
+    // Create settings table if it doesn't exist
+    await sql`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value JSONB NOT NULL
+      )
+    `;
+    
     console.log("Database initialized successfully");
   } catch (error) {
     console.error("Failed to initialize database:", error);
@@ -122,6 +143,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(204).send();
     } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+  
+  // Save global user preferences
+  app.post("/api/preferences", async (req, res) => {
+    try {
+      const preferences = userPreferencesSchema.parse(req.body);
+      await storage.saveGlobalPreferences({ userPreferences: preferences });
+      res.status(200).json({ message: "Preferences saved successfully" });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ message: fromZodError(error).message });
+      } else {
+        console.error("Error saving preferences:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    }
+  });
+  
+  // Get global user preferences
+  app.get("/api/preferences", async (req, res) => {
+    try {
+      const preferences = await storage.getGlobalPreferences();
+      res.json({ 
+        userPreferences: preferences.userPreferences || userPreferencesSchema.parse({}) 
+      });
+    } catch (error) {
+      console.error("Error fetching preferences:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   });
