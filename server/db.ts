@@ -24,6 +24,7 @@ if (databaseUrl) {
     // Extract just the hostname for debugging
     const urlObj = new URL(databaseUrl);
     console.log(`Database hostname: ${urlObj.hostname}`);
+    console.log("Database connection will use Supabase PostgreSQL");
   } catch (e) {
     console.error("Error parsing DATABASE_URL:", e);
   }
@@ -31,25 +32,37 @@ if (databaseUrl) {
 
 try {
   if (databaseUrl) {
-    console.log("Attempting to connect to PostgreSQL database...");
+    console.log("Attempting to connect to Supabase PostgreSQL database...");
     
-    // Create a PostgreSQL connection - simplify the connection options
+    // Create a PostgreSQL connection specifically for Supabase
     queryClient = postgres(databaseUrl, { 
-      ssl: { rejectUnauthorized: false },
-      max: 5,
-      idle_timeout: 30
+      ssl: 'require',  // Supabase requires SSL
+      max: 10,         // Connection pool size
+      idle_timeout: 30,
+      connect_timeout: 10, // Longer timeout for initial connection
+      connection: {
+        application_name: 'profile-management-app'
+      }
     });
     
     // Create a Drizzle instance with our schema
     db = drizzle(queryClient, { schema });
     
-    isDatabaseConnected = true;
-    console.log("PostgreSQL database connection established");
+    // Test the connection with a simple query
+    const testResult = await queryClient`SELECT 1 as test`;
+    
+    if (testResult && testResult.length > 0) {
+      isDatabaseConnected = true;
+      console.log("Supabase PostgreSQL database connection established successfully");
+    } else {
+      throw new Error("Database connection test failed");
+    }
   } else {
     console.log("No DATABASE_URL provided, database features will be disabled");
   }
 } catch (error) {
-  console.error("Failed to connect to PostgreSQL database:", error);
+  console.error("Failed to connect to Supabase PostgreSQL database:", error);
+  console.error("Error details:", error instanceof Error ? error.message : String(error));
   isDatabaseConnected = false;
 }
 
