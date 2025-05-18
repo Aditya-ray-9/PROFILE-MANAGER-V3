@@ -7,7 +7,8 @@ import ProfileGrid from '@/components/ProfileGrid';
 import Pagination from '@/components/Pagination';
 import ProfileModal from '@/components/ProfileModal';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import { useProfiles } from '@/hooks/useProfiles';
+// Import the localStorage hooks instead of API hooks for GitHub Pages compatibility
+import { useLocalProfiles } from '@/hooks/useLocalProfiles';
 import { useSearch } from '@/hooks/useSearch';
 import { usePagination } from '@/hooks/usePagination';
 import { InsertProfile, Profile } from '@shared/schema';
@@ -25,7 +26,7 @@ export default function ProfilesPage() {
     createProfile, 
     updateProfile, 
     deleteProfile 
-  } = useProfiles();
+  } = useLocalProfiles();
   
   const { searchQuery, setSearchQuery, filteredProfiles } = useSearch(profiles);
   const { currentPage, totalPages, paginatedProfiles, handlePageChange } = usePagination(filteredProfiles);
