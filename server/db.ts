@@ -15,9 +15,9 @@ let db: ReturnType<typeof drizzle> | null = null;
 
 // Initialize the database
 function initDatabase() {
-  // Get DATABASE_URL from environment or from process directly
-  // This ensures we can access it in Replit even if not loaded through dotenv
-  const databaseUrl = process.env.DATABASE_URL || process.env['DATABASE_URL'];
+  // Use Replit PostgreSQL environment variables
+  // Build connection string from individual environment variables
+  const databaseUrl = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
   console.log(`Database URL available: ${!!databaseUrl}`);
 
   // Print the hostname part of the URL for debugging
