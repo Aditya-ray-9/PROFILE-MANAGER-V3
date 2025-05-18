@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Manager</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+      .container {
+        text-align: center;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 1rem;
+      }
+      p {
+        color: #666;
+        margin-bottom: 2rem;
+      }
+      .button {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+      }
+    </style>
+    <!-- Script to redirect to the actual application using hash-based routing -->
+    <script>
+      // When the page loads
+      window.onload = function() {
+        // Check if there's a path in the URL after the domain
+        const path = window.location.pathname;
+        
+        // If we're at the root with no path, don't redirect
+        if (path === '/' || path === '/index.html') {
+          // We're already at the root index page, no redirect needed
+          return;
+        }
+        
+        // Otherwise, we need to redirect to the root with a hash route
+        window.location.href = '/#' + path;
+      };
+      
+      // Function to launch the app - will be called by button click
+      function launchApp() {
+        window.location.href = './client/';
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Profile Manager App</h1>
+      <p>Welcome to the Profile Manager application. Click the button below to access the app.</p>
+      <a href="./client/" class="button">Launch Profile Manager</a>
+    </div>
+  </body>
+</html>

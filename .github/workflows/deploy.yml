@@ -10,22 +10,51 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Create index.html for GitHub Pages
+        run: |
+          echo "<!DOCTYPE html>
+          <html lang=\"en\">
+            <head>
+              <meta charset=\"UTF-8\" />
+              <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+              <meta http-equiv=\"refresh\" content=\"0;url=index.html\" />
+              <title>Profile Manager</title>
+              <script type=\"text/javascript\">
+                window.location.href = 'index.html';
+              </script>
+            </head>
+            <body>
+              <p>Redirecting to the Profile Manager app...</p>
+              <p>If you are not redirected automatically, <a href=\"index.html\">click here</a>.</p>
+            </body>
+          </html>" > public/index.html
+
       - name: Build for GitHub Pages
-        run: node build-for-github.js
+        run: |
+          # Update package.json scripts for GitHub Pages build
+          npm pkg set scripts.build="vite build --base=./"
+          # Build the app
+          npm run build
+
+      - name: Fix 404 error for GitHub Pages SPA routing
+        run: |
+          # Copy index.html to 404.html to handle client-side routing
+          cp dist/index.html dist/404.html
+          # Create a .nojekyll file to disable Jekyll processing
+          touch dist/.nojekyll
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages # The branch the action should deploy to
           folder: dist # The folder the action should deploy
-          clean: true # Automatically remove deleted files from the deploy branch
