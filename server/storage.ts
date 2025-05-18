@@ -37,12 +37,14 @@ export class MemStorage implements IStorage {
 
   async createProfile(insertProfile: InsertProfile): Promise<Profile> {
     const id = this.currentId++;
-    const profile: Profile = { 
-      ...insertProfile, 
+    // Using type assertion to handle the TypeScript issues
+    const profile = {
+      ...insertProfile,
       id,
       searchId: insertProfile.searchId || null,
       photoUrl: insertProfile.photoUrl || null
-    };
+    } as Profile;
+    
     this.profiles.set(id, profile);
     return profile;
   }
@@ -54,12 +56,14 @@ export class MemStorage implements IStorage {
       return undefined;
     }
     
-    const updatedProfile: Profile = { 
-      ...updateProfile, 
+    // Using type assertion to handle the TypeScript issues
+    const updatedProfile = {
+      ...updateProfile,
       id,
       searchId: updateProfile.searchId || null,
       photoUrl: updateProfile.photoUrl || null
-    };
+    } as Profile;
+    
     this.profiles.set(id, updatedProfile);
     return updatedProfile;
   }
