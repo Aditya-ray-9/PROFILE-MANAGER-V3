@@ -13,56 +13,6 @@ export { sql };
 let queryClient: ReturnType<typeof postgres> | null = null;
 let db: ReturnType<typeof drizzle> | null = null;
 
-// Function to create database tables
-async function createDatabaseTables(): Promise<void> {
-  if (!queryClient) return;
-  
-  try {
-    // Create profiles table
-    await queryClient`
-      CREATE TABLE IF NOT EXISTS profiles (
-        id SERIAL PRIMARY KEY,
-        profile_id TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL,
-        search_id TEXT,
-        description TEXT NOT NULL,
-        photo_url TEXT,
-        documents JSONB DEFAULT '[]'
-      )
-    `;
-
-    // Create settings table
-    await queryClient`
-      CREATE TABLE IF NOT EXISTS settings (
-        key TEXT PRIMARY KEY,
-        value JSONB NOT NULL
-      )
-    `;
-    
-    // Create users table
-    await queryClient`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        role TEXT NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      )
-    `;
-    
-    // Insert admin user if not exists
-    await queryClient`
-      INSERT INTO users (username, password, role)
-      VALUES ('admin', 'A9810625562', 'admin')
-      ON CONFLICT (username) DO NOTHING
-    `;
-    
-    console.log("Database tables created successfully");
-  } catch (error) {
-    console.error("Error creating database tables:", error);
-  }
-}
-
 // Initialize the database
 async function initDatabase() {
   // Use Neon PostgreSQL database URI from environment
@@ -113,7 +63,7 @@ async function initDatabase() {
 }
 
 // Function to create database tables
-async function createDatabaseTables(): Promise<void> {
+async function createDatabaseTables() {
   if (!queryClient) return;
   
   try {
@@ -126,7 +76,7 @@ async function createDatabaseTables(): Promise<void> {
         search_id TEXT,
         description TEXT NOT NULL,
         photo_url TEXT,
-        documents JSONB DEFAULT '[]'
+        documents JSONB DEFAULT '[]'::jsonb
       )
     `;
 
@@ -162,4 +112,10 @@ async function createDatabaseTables(): Promise<void> {
   }
 }
 
+// Initialize database connection
+(async () => {
+  await initDatabase();
+})();
+
+// Export the database connection variables
 export { queryClient, db };
