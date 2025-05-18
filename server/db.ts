@@ -33,11 +33,11 @@ try {
   if (databaseUrl) {
     console.log("Attempting to connect to PostgreSQL database...");
     
-    // Create a PostgreSQL connection
+    // Create a PostgreSQL connection - simplify the connection options
     queryClient = postgres(databaseUrl, { 
-      ssl: 'require',
-      max: 10,
-      prepare: false
+      ssl: { rejectUnauthorized: false },
+      max: 5,
+      idle_timeout: 30
     });
     
     // Create a Drizzle instance with our schema
