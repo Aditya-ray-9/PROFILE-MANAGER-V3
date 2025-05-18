@@ -14,25 +14,54 @@ export default function Header({ toggleSidebar }: HeaderProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
   
-  // Default settings - in a real app, these would be loaded from localStorage or API
-  const defaultPreferences: UserPreferences = {
-    theme: "system",
-    language: "en",
-    cardsPerPage: 6,
-    notificationsEnabled: true,
-    compactView: false,
-    accentColor: "#0284c7"
-  };
+  // Load settings from localStorage
+  const defaultPreferences: UserPreferences = (() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const storedPrefs = localStorage.getItem("profile-manager-preferences");
+        if (storedPrefs) {
+          return JSON.parse(storedPrefs);
+        }
+      }
+    } catch (e) {
+      console.error("Error loading preferences", e);
+    }
+    
+    // Default preferences
+    return {
+      theme: "system",
+      language: "en",
+      cardsPerPage: 6,
+      notificationsEnabled: true,
+      compactView: false,
+      accentColor: "#0284c7"
+    };
+  })();
   
   const savePreferences = (preferences: UserPreferences) => {
-    // In a real app, save to localStorage or API
-    console.log("Saving preferences:", preferences);
-    
-    // For demo purposes, we're just showing a toast
-    toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated.",
-    });
+    // Save to localStorage for GitHub Pages compatibility
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem("profile-manager-preferences", JSON.stringify(preferences));
+      }
+      
+      // Apply the theme immediately
+      if (preferences.theme) {
+        document.documentElement.setAttribute('data-theme', preferences.theme);
+      }
+      
+      toast({
+        title: "Settings saved",
+        description: "Your preferences have been updated.",
+      });
+    } catch (e) {
+      console.error("Error saving preferences", e);
+      toast({
+        title: "Error",
+        description: "Failed to save preferences.",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
