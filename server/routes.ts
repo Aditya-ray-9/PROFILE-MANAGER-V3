@@ -1,9 +1,14 @@
-import type { Express, Request } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { storage } from "./storage";
 import { sql } from "./db";
-import { insertProfileSchema, profileSearchSchema, userPreferencesSchema } from "@shared/schema";
+import { 
+  insertProfileSchema, 
+  profileSearchSchema, 
+  userPreferencesSchema,
+  loginSchema
+} from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -37,15 +42,111 @@ async function initDatabase() {
       )
     `;
     
-    console.log("Database initialized successfully");
+    // Create users table for authentication
+    await sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    
+    // Insert admin user if not exists
+    await sql`
+      INSERT INTO users (username, password, role)
+      VALUES ('admin', 'admin123', 'admin')
+      ON CONFLICT (username) DO NOTHING
+    `;
+    
+    console.log("Database tables initialized successfully");
   } catch (error) {
     console.error("Failed to initialize database:", error);
+    console.error("Error details:", error instanceof Error ? error.message : String(error));
   }
 }
+
+// Authentication middleware
+const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+  
+  // Simple session-based auth (in production, use JWT or session)
+  const [authType, username] = authHeader.split(' ');
+  if (authType !== 'Bearer' || !username) {
+    return res.status(401).json({ message: "Unauthorized: Invalid token format" });
+  }
+  
+  try {
+    const user = await storage.getUserByUsername(username);
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
+    }
+    
+    // Attach user to request for use in route handlers
+    (req as any).user = user;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Admin role check middleware
+const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const user = (req as any).user;
+  if (!user || user.role !== 'admin') {
+    return res.status(403).json({ message: "Forbidden: Admin access required" });
+  }
+  next();
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize database and create necessary tables
   await initDatabase();
+  
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = loginSchema.parse(req.body);
+      const user = await storage.validateUser(username, password);
+      
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+      
+      // Return user info and role
+      res.json({
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role
+        }
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ message: fromZodError(error).message });
+      } else {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    }
+  });
+  
+  // Check current user authentication status
+  app.get("/api/auth/me", authenticateUser, (req, res) => {
+    const user = (req as any).user;
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role
+      }
+    });
+  });
 
   // Get all profiles with pagination
   app.get("/api/profiles", async (req, res) => {

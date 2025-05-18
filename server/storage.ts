@@ -1,4 +1,4 @@
-import { profiles, type Profile, type InsertProfile } from "@shared/schema";
+import { profiles, users, type Profile, type InsertProfile, type User } from "@shared/schema";
 import { nanoid } from "nanoid";
 import { db, sql, queryClient, isDatabaseConnected } from "./db";
 import { eq, like, or, desc } from "drizzle-orm";
@@ -6,6 +6,7 @@ import { eq, like, or, desc } from "drizzle-orm";
 // Local storage for development/fallback
 class MemStorage {
   private profiles: Map<number, Profile> = new Map();
+  private users: Map<string, User> = new Map();
   private currentId: number = 1;
   private preferences: Record<string, any> = {};
 
@@ -18,6 +19,15 @@ class MemStorage {
         description: "This is a sample profile for testing.",
         searchId: "sample123",
         documents: [],
+      });
+      
+      // Add default admin user
+      this.users.set('admin', {
+        id: 1,
+        username: 'admin',
+        password: 'admin123',
+        role: 'admin',
+        createdAt: new Date()
       });
     }
   }
@@ -96,23 +106,91 @@ class MemStorage {
   async getGlobalPreferences(): Promise<Record<string, any>> {
     return this.preferences;
   }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return this.users.get(username);
+  }
+  
+  async validateUser(username: string, password: string): Promise<User | undefined> {
+    const user = this.users.get(username);
+    if (user && user.password === password) {
+      // Return user without password for security
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword as User;
+    }
+    return undefined;
+  }
 }
 
 // Create a memory-based fallback for when database is unavailable
 const memStorage = new MemStorage();
 
 export interface IStorage {
+  // Profile operations
   getProfiles(query?: string, page?: number, limit?: number): Promise<{ profiles: Profile[], total: number }>;
   getProfile(id: number): Promise<Profile | undefined>;
   createProfile(profile: InsertProfile): Promise<Profile>;
   updateProfile(id: number, profile: InsertProfile): Promise<Profile | undefined>;
   deleteProfile(id: number): Promise<boolean>;
+  
+  // Preferences
   saveGlobalPreferences(preferences: Record<string, any>): Promise<void>;
   getGlobalPreferences(): Promise<Record<string, any>>;
+  
+  // Authentication
+  getUserByUsername(username: string): Promise<User | undefined>;
+  validateUser(username: string, password: string): Promise<User | undefined>;
 }
 
 // Hybrid storage that uses PostgreSQL when available, falls back to memory storage
 export class HybridStorage implements IStorage {
+  // Authentication methods
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    if (!isDatabaseConnected || !db || !queryClient) {
+      console.log("Using memory storage for getUserByUsername");
+      return memStorage.getUserByUsername(username);
+    }
+    
+    try {
+      const result = await queryClient`
+        SELECT * FROM users WHERE username = ${username}
+      `;
+      
+      if (result.length === 0) {
+        return undefined;
+      }
+      
+      return result[0] as User;
+    } catch (error) {
+      console.error("Database error in getUserByUsername:", error);
+      return memStorage.getUserByUsername(username);
+    }
+  }
+  
+  async validateUser(username: string, password: string): Promise<User | undefined> {
+    if (!isDatabaseConnected || !db || !queryClient) {
+      console.log("Using memory storage for validateUser");
+      return memStorage.validateUser(username, password);
+    }
+    
+    try {
+      const result = await queryClient`
+        SELECT * FROM users 
+        WHERE username = ${username} AND password = ${password}
+      `;
+      
+      if (result.length === 0) {
+        return undefined;
+      }
+      
+      // Return user without password for security
+      const { password: _, ...userWithoutPassword } = result[0];
+      return userWithoutPassword as User;
+    } catch (error) {
+      console.error("Database error in validateUser:", error);
+      return memStorage.validateUser(username, password);
+    }
+  }
   async getProfiles(query?: string, page: number = 1, limit: number = 6): Promise<{ profiles: Profile[], total: number }> {
     if (!isDatabaseConnected || !db || !queryClient) {
       console.log("Using memory storage for getProfiles");
