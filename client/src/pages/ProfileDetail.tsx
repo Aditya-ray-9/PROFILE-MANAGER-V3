@@ -26,7 +26,7 @@ export default function ProfileDetail() {
   const { toast } = useToast();
 
   // Fetch profile data
-  const { data: profile, isLoading, isError, error } = useQuery({
+  const { data: profile, isLoading, isError, error } = useQuery<Profile>({
     queryKey: ['/api/profiles', id],
     enabled: !!id,
   });
@@ -53,10 +53,18 @@ export default function ProfileDetail() {
 
   const handleSubmitProfile = async (data: any) => {
     try {
-      await apiRequest('/api/profiles/' + id, {
+      // Use fetch instead of apiRequest since we need to specify method and body
+      const response = await fetch('/api/profiles/' + id, {
         method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
       
       // Invalidate the profile query to reload data
       queryClient.invalidateQueries({ queryKey: ['/api/profiles', id] });
@@ -77,9 +85,14 @@ export default function ProfileDetail() {
 
   const handleConfirmDelete = async () => {
     try {
-      await apiRequest('/api/profiles/' + id, {
+      // Use fetch instead of apiRequest since we need to specify method
+      const response = await fetch('/api/profiles/' + id, {
         method: 'DELETE',
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete profile');
+      }
       
       // Redirect back to profiles page after deletion
       navigate('/profiles');

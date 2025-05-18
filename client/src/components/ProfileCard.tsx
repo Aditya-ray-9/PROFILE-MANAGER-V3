@@ -46,10 +46,12 @@ export default function ProfileCard({ profile, onEdit, onDelete }: ProfileCardPr
         <p className="mt-4 text-sm text-gray-600 line-clamp-2">{description}</p>
         <div className="mt-4 flex justify-between items-center">
           <span className="text-xs text-gray-500">ID: {profileId}</span>
-          <Button variant="link" className="p-0 h-auto text-primary hover:text-blue-700 text-sm font-medium">
-            View Details
-            <ChevronRight className="ml-1 h-3 w-3" />
-          </Button>
+          <Link href={`/profiles/${profile.id}`}>
+            <Button variant="link" className="p-0 h-auto text-primary hover:text-blue-700 text-sm font-medium">
+              View Details
+              <ChevronRight className="ml-1 h-3 w-3" />
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
