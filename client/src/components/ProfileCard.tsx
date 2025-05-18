@@ -4,7 +4,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, ChevronRight } from "lucide-react";
 import { getInitials } from "@/lib/utils";
-import { DEFAULT_AVATAR_URLS } from "@/lib/constants";
+// Import the default profile image directly
+import defaultProfileImage from "../assets/default-profile.jpg";
 
 interface ProfileCardProps {
   profile: Profile;
@@ -15,7 +16,7 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile, onEdit, onDelete }: ProfileCardProps) {
   const { name, profileId, searchId, description, photoUrl } = profile;
   const initials = getInitials(name);
-  const avatarUrl = photoUrl || DEFAULT_AVATAR_URLS[profile.id % DEFAULT_AVATAR_URLS.length];
+  const avatarUrl = photoUrl || defaultProfileImage;
 
   return (
     <Card className="overflow-hidden transition-all duration-200 hover:translate-y-[-2px] hover:shadow-lg">
