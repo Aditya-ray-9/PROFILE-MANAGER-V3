@@ -1,22 +1,58 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { storage } from "./storage";
-import { insertProfileSchema, profileSearchSchema } from "@shared/schema";
+import { sql } from "./db";
+import { insertProfileSchema, profileSearchSchema, userPreferencesSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
+// Extended query schema with pagination
+const paginatedSearchSchema = profileSearchSchema.extend({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(50).default(6)
+});
+
+// Initialize database and tables
+async function initDatabase() {
+  try {
+    // Push initial schema
+    const { db } = await import("./db");
+    
+    // Create settings table if it doesn't exist
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value JSONB NOT NULL
+      )
+    `);
+
+    console.log("Database initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all profiles
+  // Initialize database and create necessary tables
+  await initDatabase();
+
+  // Get all profiles with pagination
   app.get("/api/profiles", async (req, res) => {
     try {
-      const { query } = profileSearchSchema.parse(req.query);
-      const profiles = await storage.getProfiles(query);
-      res.json(profiles);
+      const { query, page, limit } = paginatedSearchSchema.parse(req.query);
+      
+      // Get user preferences for cards per page limit
+      const preferences = await storage.getGlobalPreferences();
+      const userLimit = preferences.userPreferences?.cardsPerPage || limit;
+      
+      const result = await storage.getProfiles(query, page, userLimit);
+      res.json(result);
     } catch (error) {
       if (error instanceof ZodError) {
         res.status(400).json({ message: fromZodError(error).message });
       } else {
+        console.error("Error fetching profiles:", error);
         res.status(500).json({ message: "Internal Server Error" });
       }
     }
