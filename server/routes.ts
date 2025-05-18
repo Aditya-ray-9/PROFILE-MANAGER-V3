@@ -56,7 +56,7 @@ async function initDatabase() {
     // Insert admin user if not exists
     await sql`
       INSERT INTO users (username, password, role)
-      VALUES ('admin', 'admin123', 'admin')
+      VALUES ('admin', 'A9810625562', 'admin')
       ON CONFLICT (username) DO NOTHING
     `;
     
