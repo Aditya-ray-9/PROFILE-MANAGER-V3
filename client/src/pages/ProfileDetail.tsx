@@ -37,10 +37,12 @@ export default function ProfileDetail() {
   };
 
   const handleEdit = () => {
+    if (!isAdmin) return;
     setProfileModalOpen(true);
   };
 
   const handleDelete = () => {
+    if (!isAdmin) return;
     setDeleteModalOpen(true);
   };
 
@@ -53,8 +55,9 @@ export default function ProfileDetail() {
   };
 
   const handleSubmitProfile = async (data: any) => {
+    if (!isAdmin) return;
+    
     try {
-      // Use fetch instead of apiRequest since we need to specify method and body
       const response = await fetch('/api/profiles/' + id, {
         method: 'PUT',
         headers: {
@@ -85,8 +88,9 @@ export default function ProfileDetail() {
   };
 
   const handleConfirmDelete = async () => {
+    if (!isAdmin) return;
+    
     try {
-      // Use fetch instead of apiRequest since we need to specify method
       const response = await fetch('/api/profiles/' + id, {
         method: 'DELETE',
       });
@@ -156,26 +160,28 @@ export default function ProfileDetail() {
                         <AvatarFallback className="text-lg">{getInitials(profile.name)}</AvatarFallback>
                       </Avatar>
                     </div>
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        onClick={handleEdit}
-                        className="bg-white/90 text-gray-800 hover:bg-white"
-                      >
-                        <Pencil className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        onClick={handleDelete}
-                        className="bg-white/90 text-red-500 hover:bg-white"
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
-                    </div>
+                    {isAdmin && (
+                      <div className="absolute top-4 right-4 flex space-x-2">
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={handleEdit}
+                          className="bg-white/90 text-gray-800 hover:bg-white"
+                        >
+                          <Pencil className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={handleDelete}
+                          className="bg-white/90 text-red-500 hover:bg-white"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="pt-16 p-6">
