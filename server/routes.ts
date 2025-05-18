@@ -188,8 +188,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new profile
-  app.post("/api/profiles", async (req, res) => {
+  // Create new profile (admin only)
+  app.post("/api/profiles", authenticateUser, requireAdmin, async (req, res) => {
     try {
       const profileData = insertProfileSchema.parse(req.body);
       const profile = await storage.createProfile(profileData);
@@ -198,13 +198,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof ZodError) {
         res.status(400).json({ message: fromZodError(error).message });
       } else {
+        console.error("Error creating profile:", error);
         res.status(500).json({ message: "Internal Server Error" });
       }
     }
   });
 
-  // Update profile
-  app.put("/api/profiles/:id", async (req, res) => {
+  // Update profile (admin only)
+  app.put("/api/profiles/:id", authenticateUser, requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -223,13 +224,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof ZodError) {
         res.status(400).json({ message: fromZodError(error).message });
       } else {
+        console.error("Error updating profile:", error);
         res.status(500).json({ message: "Internal Server Error" });
       }
     }
   });
 
-  // Delete profile
-  app.delete("/api/profiles/:id", async (req, res) => {
+  // Delete profile (admin only)
+  app.delete("/api/profiles/:id", authenticateUser, requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -244,6 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(204).send();
     } catch (error) {
+      console.error("Error deleting profile:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   });
