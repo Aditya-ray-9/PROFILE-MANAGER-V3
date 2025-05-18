@@ -5,16 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, ChevronRight } from "lucide-react";
 import { getInitials } from "@/lib/utils";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 // Import the default profile image directly
 import defaultProfileImage from "../assets/default-profile.jpg";
 
 interface ProfileCardProps {
   profile: Profile;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function ProfileCard({ profile, onEdit, onDelete }: ProfileCardProps) {
+  const { isAdmin } = useAuth();
   const { name, profileId, searchId, description, photoUrl } = profile;
   const initials = getInitials(name);
   // Use the default image if no photo URL is provided
@@ -34,14 +36,20 @@ export default function ProfileCard({ profile, onEdit, onDelete }: ProfileCardPr
               {searchId && <p className="text-sm text-gray-500">#{searchId}</p>}
             </div>
           </div>
-          <div className="flex space-x-1">
-            <Button variant="ghost" size="icon" onClick={onEdit} title="Edit profile" className="h-8 w-8 text-gray-400 hover:text-primary">
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={onDelete} title="Delete profile" className="h-8 w-8 text-gray-400 hover:text-destructive">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex space-x-1">
+              {onEdit && (
+                <Button variant="ghost" size="icon" onClick={onEdit} title="Edit profile" className="h-8 w-8 text-gray-400 hover:text-primary">
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              )}
+              {onDelete && (
+                <Button variant="ghost" size="icon" onClick={onDelete} title="Delete profile" className="h-8 w-8 text-gray-400 hover:text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
         </div>
         <p className="mt-4 text-sm text-gray-600 line-clamp-2">{description}</p>
         <div className="mt-4 flex justify-between items-center">

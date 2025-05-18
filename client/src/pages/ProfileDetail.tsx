@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -11,11 +11,11 @@ import Sidebar from '@/components/Sidebar';
 import ProfileModal from '@/components/ProfileModal';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
 import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import defaultProfileImage from "../assets/default-profile.jpg";
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileDetail() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +24,7 @@ export default function ProfileDetail() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { toast } = useToast();
+  const { isAdmin } = useAuth();
 
   // Fetch profile data
   const { data: profile, isLoading, isError, error } = useQuery<Profile>({

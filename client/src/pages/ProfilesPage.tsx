@@ -7,8 +7,8 @@ import ProfileGrid from '@/components/ProfileGrid';
 import Pagination from '@/components/Pagination';
 import ProfileModal from '@/components/ProfileModal';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-// Import the localStorage hooks instead of API hooks for GitHub Pages compatibility
-import { useLocalProfiles } from '@/hooks/useLocalProfiles';
+// Using API data hooks to fetch from database
+import { useProfiles } from '@/hooks/useProfiles';
 import { useSearch } from '@/hooks/useSearch';
 import { usePagination } from '@/hooks/usePagination';
 import { InsertProfile, Profile } from '@shared/schema';
@@ -30,7 +30,7 @@ export default function ProfilesPage() {
     createProfile, 
     updateProfile, 
     deleteProfile 
-  } = useLocalProfiles();
+  } = useProfiles();
   
   const { searchQuery, setSearchQuery, filteredProfiles } = useSearch(profiles);
   const { currentPage, totalPages, paginatedProfiles, handlePageChange } = usePagination(filteredProfiles);
@@ -40,11 +40,13 @@ export default function ProfilesPage() {
   };
 
   const handleOpenAddModal = () => {
+    if (!isAdmin) return;
     setEditingProfile(null);
     setProfileModalOpen(true);
   };
 
   const handleEdit = (profile: Profile) => {
+    if (!isAdmin) return;
     setEditingProfile(profile);
     setProfileModalOpen(true);
   };
@@ -55,6 +57,7 @@ export default function ProfilesPage() {
   };
 
   const handleOpenDeleteModal = (id: number) => {
+    if (!isAdmin) return;
     setProfileToDelete(id);
     setDeleteModalOpen(true);
   };
@@ -65,6 +68,8 @@ export default function ProfilesPage() {
   };
 
   const handleSubmitProfile = async (profileData: InsertProfile) => {
+    if (!isAdmin) return;
+    
     if (editingProfile) {
       await updateProfile(editingProfile.id, profileData);
     } else {
@@ -74,6 +79,8 @@ export default function ProfilesPage() {
   };
 
   const handleConfirmDelete = async () => {
+    if (!isAdmin) return;
+    
     if (profileToDelete !== null) {
       await deleteProfile(profileToDelete);
       setDeleteModalOpen(false);

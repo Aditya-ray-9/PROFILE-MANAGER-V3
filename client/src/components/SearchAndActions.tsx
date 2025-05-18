@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Filter } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SearchAndActionsProps {
   searchQuery: string;
@@ -13,11 +14,12 @@ export default function SearchAndActions({
   setSearchQuery, 
   openAddProfileModal 
 }: SearchAndActionsProps) {
+  const { isAdmin } = useAuth();
   return (
     <div className="mb-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <h2 className="text-2xl font-bold text-gray-800">All Profiles</h2>
-        {openAddProfileModal && (
+        {isAdmin && openAddProfileModal && (
           <Button onClick={openAddProfileModal} className="bg-primary hover:bg-blue-700">
             <Plus className="mr-2 h-4 w-4" />
             Add Profile
