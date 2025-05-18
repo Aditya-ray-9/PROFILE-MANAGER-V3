@@ -221,15 +221,23 @@ export class HybridStorage implements IStorage {
         profileId: insertProfile.profileId || nanoid(7),
       };
       
+      // Simplified approach to handle SQL insert with proper type safety
       const result = await queryClient`
-        INSERT INTO profiles ${queryClient(profileData, 
-          'profileId:profile_id', 
-          'name', 
-          'searchId:search_id', 
-          'description', 
-          'photoUrl:photo_url', 
-          'documents'
-        )}
+        INSERT INTO profiles (
+          profile_id, 
+          name, 
+          search_id, 
+          description, 
+          photo_url, 
+          documents
+        ) VALUES (
+          ${profileData.profileId},
+          ${profileData.name},
+          ${profileData.searchId || null},
+          ${profileData.description},
+          ${profileData.photoUrl || null},
+          ${profileData.documents ? JSON.stringify(profileData.documents) : '[]'}
+        )
         RETURNING *
       `;
       
@@ -256,16 +264,15 @@ export class HybridStorage implements IStorage {
     }
     
     try {
+      // We need to use direct column assignments to avoid drizzle-orm issues
       const result = await queryClient`
-        UPDATE profiles 
-        SET ${queryClient(updateProfile, 
-          'profileId:profile_id', 
-          'name', 
-          'searchId:search_id', 
-          'description', 
-          'photoUrl:photo_url', 
-          'documents'
-        )}
+        UPDATE profiles SET 
+          profile_id = ${updateProfile.profileId || nanoid(7)},
+          name = ${updateProfile.name},
+          search_id = ${updateProfile.searchId || null},
+          description = ${updateProfile.description},
+          photo_url = ${updateProfile.photoUrl || null},
+          documents = ${updateProfile.documents ? JSON.stringify(updateProfile.documents) : '[]'}
         WHERE id = ${id}
         RETURNING *
       `;

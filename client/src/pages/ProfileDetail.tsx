@@ -201,10 +201,10 @@ export default function ProfileDetail() {
                 <div className="bg-white rounded-lg shadow-md overflow-hidden p-6">
                   <h2 className="text-lg font-semibold mb-4">Documents</h2>
                   
-                  {profile.documents && profile.documents.length > 0 ? (
+                  {profile.documents && Array.isArray(profile.documents) && profile.documents.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {profile.documents.map((doc: Document) => (
-                        <Card key={doc.id} className="overflow-hidden">
+                      {profile.documents.map((doc: Document, index: number) => (
+                        <Card key={doc.id || index} className="overflow-hidden">
                           <CardContent className="p-4">
                             <div className="flex items-start space-x-3">
                               <div className="flex-shrink-0 bg-blue-100 p-2 rounded">
@@ -213,16 +213,18 @@ export default function ProfileDetail() {
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-sm font-medium text-gray-900 truncate">{doc.name}</h4>
                                 <p className="text-xs text-gray-500">{doc.type}</p>
-                                <p className="text-xs text-gray-500 mt-1">Added: {new Date(doc.dateAdded).toLocaleDateString()}</p>
+                                <p className="text-xs text-gray-500 mt-1">Added: {doc.dateAdded ? new Date(doc.dateAdded).toLocaleDateString() : 'Unknown'}</p>
                               </div>
-                              <a 
-                                href={doc.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex-shrink-0 text-blue-600 hover:text-blue-800"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
+                              {doc.url && (
+                                <a 
+                                  href={doc.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex-shrink-0 text-blue-600 hover:text-blue-800"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              )}
                             </div>
                           </CardContent>
                         </Card>
