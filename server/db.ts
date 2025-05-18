@@ -13,12 +13,17 @@ export { sql };
 let queryClient: ReturnType<typeof postgres> | null = null;
 let db: ReturnType<typeof drizzle> | null = null;
 
+// Get DATABASE_URL from environment or from process directly
+// This ensures we can access it in Replit even if not loaded through dotenv
+const databaseUrl = process.env.DATABASE_URL || process.env['DATABASE_URL'];
+console.log(`Database URL available: ${!!databaseUrl}`);
+
 try {
-  if (process.env.DATABASE_URL) {
+  if (databaseUrl) {
     console.log("Attempting to connect to PostgreSQL database...");
     
     // Create a PostgreSQL connection
-    queryClient = postgres(process.env.DATABASE_URL, { 
+    queryClient = postgres(databaseUrl, { 
       ssl: 'require',
       max: 10,
       prepare: false
