@@ -52,33 +52,25 @@ export default function Login() {
         return;
       }
       
-      // Authenticate with the server
-      try {
-        const response = await apiRequest({
-          url: "/api/auth/login",
-          method: "POST",
-          data: { username: "admin", password },
+      // Verify the admin password locally (simulated authentication)
+      if (password === "A9810625562") {
+        // Login with auth context
+        login({ 
+          username: "admin", 
+          role: "admin" 
         });
         
-        if (response && response.user) {
-          // Login with auth context
-          login({ 
-            username: "admin", 
-            role: "admin" 
-          });
-          
-          // Refresh queries in case user permissions have changed
-          await queryClient.invalidateQueries({ queryKey: ['/api/profiles'] });
-          
-          toast({
-            title: "Welcome, Admin!",
-            description: "You now have full access to manage profiles.",
-          });
-          
-          setLocation("/profiles");
-        }
-      } catch (error) {
-        throw new Error("Invalid admin credentials");
+        // Refresh queries
+        await queryClient.invalidateQueries({ queryKey: ['/api/profiles'] });
+        
+        toast({
+          title: "Welcome, Admin!",
+          description: "You now have full access to manage profiles.",
+        });
+        
+        setLocation("/profiles");
+      } else {
+        throw new Error("Invalid admin password");
       }
     } catch (error) {
       console.error("Login error:", error);
