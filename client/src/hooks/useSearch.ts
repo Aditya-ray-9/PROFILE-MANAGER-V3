@@ -13,7 +13,9 @@ export function useSearch(profiles: Profile[]) {
     return profiles.filter(profile => {
       return (
         profile.name.toLowerCase().includes(query) || 
-        (profile.searchId && profile.searchId.toLowerCase().includes(query))
+        (profile.searchId && profile.searchId.toLowerCase().includes(query)) ||
+        profile.profileId.toLowerCase().includes(query) ||
+        profile.id.toString().includes(query)
       );
     });
   }, [profiles, searchQuery]);

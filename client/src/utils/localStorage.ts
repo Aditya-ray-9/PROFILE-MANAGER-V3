@@ -106,7 +106,9 @@ export function searchProfiles(query?: string): Profile[] {
   const lowercaseQuery = query.toLowerCase();
   return profiles.filter(profile => 
     profile.name.toLowerCase().includes(lowercaseQuery) || 
-    (profile.searchId && profile.searchId.toLowerCase().includes(lowercaseQuery))
+    (profile.searchId && profile.searchId.toLowerCase().includes(lowercaseQuery)) ||
+    profile.profileId.toLowerCase().includes(lowercaseQuery) ||
+    profile.id.toString().includes(lowercaseQuery)
   );
 }
 
