@@ -221,6 +221,8 @@ export class HybridStorage implements IStorage {
         profileId: insertProfile.profileId || nanoid(7),
       };
       
+      console.log("Attempting to create profile in Supabase...");
+      
       // Simplified approach to handle SQL insert with proper type safety
       const result = await queryClient`
         INSERT INTO profiles (
@@ -241,6 +243,7 @@ export class HybridStorage implements IStorage {
         RETURNING *
       `;
       
+      console.log("Profile created successfully in Supabase database");
       const row = result[0];
       return {
         id: row.id,
@@ -253,6 +256,7 @@ export class HybridStorage implements IStorage {
       };
     } catch (error) {
       console.error("Database error in createProfile:", error);
+      console.log("Falling back to memory storage for this operation");
       return memStorage.createProfile(insertProfile);
     }
   }

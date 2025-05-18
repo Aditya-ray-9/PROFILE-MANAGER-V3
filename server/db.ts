@@ -15,8 +15,19 @@ let db: ReturnType<typeof drizzle> | null = null;
 
 // Get DATABASE_URL from environment or from process directly
 // This ensures we can access it in Replit even if not loaded through dotenv
-const databaseUrl = process.env.DATABASE_URL || process.env['DATABASE_URL'];
+let databaseUrl = process.env.DATABASE_URL || process.env['DATABASE_URL'];
 console.log(`Database URL available: ${!!databaseUrl}`);
+
+// Print the hostname part of the URL for debugging
+if (databaseUrl) {
+  try {
+    // Extract just the hostname for debugging
+    const urlObj = new URL(databaseUrl);
+    console.log(`Database hostname: ${urlObj.hostname}`);
+  } catch (e) {
+    console.error("Error parsing DATABASE_URL:", e);
+  }
+}
 
 try {
   if (databaseUrl) {
