@@ -108,6 +108,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize database and create necessary tables
   await initDatabase();
   
+  // Health check endpoint for Render
+  app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "ok", message: "Server is running", timestamp: new Date().toISOString() });
+  });
+  
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
